@@ -1,0 +1,645 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Der Schultag</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: cuaderno cuadriculado de una columna. El mapa de salas es un horario escolar (1. Stunde ... 6. Stunde, con Pause). */
+:root{
+  --paper:#F5F9FF; --grid:#D6E4F5; --card:#FFFFFF;
+  --ink:#1F3496; --ink-soft:#4A5FA8; --red:#CC2236; --line:#A9BEDF;
+  --hl-peach:#FFCDB5; --hl-lav:#DCCBF6; --hl-yel:#FFF27A; --star:#FFD43B;
+  --good:#C4F0CD; --good-ink:#0E5A2A; --bad:#FFD0D4; --bad-ink:#8E1426; --on-ink:#FFFFFF;
+  --font-display:'Caveat Brush','Segoe Print','Comic Sans MS',cursive;
+  --font-body:'Nunito','Trebuchet MS',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10162B; --grid:#1D2744; --card:#18203A;
+    --ink:#AFC0FF; --ink-soft:#8FA3E6; --red:#FF8C97; --line:#3A4A7C;
+    --hl-peach:#6B4032; --hl-lav:#473C78; --hl-yel:#5F5A1A;
+    --good:#1D5232; --good-ink:#BDF3CE; --bad:#6A2330; --bad-ink:#FFCCD2; --on-ink:#10162B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10162B; --grid:#1D2744; --card:#18203A;
+  --ink:#AFC0FF; --ink-soft:#8FA3E6; --red:#FF8C97; --line:#3A4A7C;
+  --hl-peach:#6B4032; --hl-lav:#473C78; --hl-yel:#5F5A1A;
+  --good:#1D5232; --good-ink:#BDF3CE; --bad:#6A2330; --bad-ink:#FFCCD2; --on-ink:#10162B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font:600 17px/1.45 var(--font-body);
+  padding-block:12px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  min-height:100vh;
+}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1{font:400 clamp(46px,13vw,66px)/1 var(--font-display);letter-spacing:.5px}
+h2{font:400 34px/1.05 var(--font-display);text-wrap:balance}
+.hl{background:linear-gradient(transparent 52%,var(--hl-yel) 52%,var(--hl-yel) 90%,transparent 90%);padding:0 .12em}
+.hl.peach{background:linear-gradient(transparent 52%,var(--hl-peach) 52%,var(--hl-peach) 90%,transparent 90%)}
+.hl.lav{background:linear-gradient(transparent 52%,var(--hl-lav) 52%,var(--hl-lav) 90%,transparent 90%)}
+.lead{color:var(--ink-soft);font-size:18px}
+.lab{font:800 12px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--red)}
+.note{font-size:15px;color:var(--ink-soft)}
+.panel{background:var(--card);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:14px 16px;box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;gap:10px;min-width:0}
+.inp{font:800 20px var(--font-body);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+.inp.big{font-size:26px;text-align:center}
+.seg,.lv{display:flex;gap:8px;flex-wrap:wrap}
+.seg button,.lv button{flex:1 1 0;min-width:0;background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:10px 8px;font-weight:800;font-size:16px;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--hl-yel)}
+.lv button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.lv button.l0[aria-pressed="true"]{background:var(--hl-peach)}
+.lv button.l1[aria-pressed="true"]{background:var(--hl-lav)}
+.lv button.l2[aria-pressed="true"]{background:var(--hl-yel)}
+.chk{display:flex;gap:10px;align-items:center;font-weight:700}
+.chk input{width:22px;height:22px;accent-color:var(--ink)}
+.btn{background:var(--ink);color:var(--on-ink);border:2px solid var(--ink);border-radius:12px;padding:13px 20px;font-weight:800;font-size:18px;min-height:52px;text-align:center}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.sm{min-height:40px;padding:6px 14px;font-size:15px}
+.tag{display:inline-block;border:1.5px solid var(--ink);border-radius:999px;padding:1px 9px;font:800 12px/1.5 var(--font-body);color:var(--ink);white-space:nowrap}
+.tag.l0{background:var(--hl-peach)} .tag.l1{background:var(--hl-lav)} .tag.l2{background:var(--hl-yel)}
+.star{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.star.on{fill:var(--star)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rooms{display:flex;flex-direction:column;gap:10px}
+.hour{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:12px 14px;box-shadow:3px 3px 0 var(--line);color:var(--ink)}
+.hour .hr{font:400 24px/1.05 var(--font-display);color:var(--red)}
+.hour .rt{min-width:0}
+.hour .rt b{display:block;font-weight:800;font-size:19px;overflow-wrap:anywhere}
+.hour .rt small{display:block;color:var(--ink-soft);font-weight:600;font-size:14px}
+.hour .sts{display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.hour .ps{display:flex;align-items:center;gap:1px}
+.hour .ps i{font:800 11px var(--font-body);font-style:normal;color:var(--ink-soft);margin-right:3px}
+.hour.pause{background:var(--hl-peach)}
+.hour.boss{background:var(--hl-lav)}
+.hour[disabled]{opacity:.6;border-style:dashed;box-shadow:none;cursor:default}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.pchip{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.pchip.on{border-color:var(--ink);background:var(--hl-yel)}
+.pchip b{font-weight:800;overflow-wrap:anywhere}
+.pchip .pts{font-size:14px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.pchip.on .pts{color:var(--ink)}
+.prompt{font:400 clamp(32px,9vw,42px)/1.1 var(--font-display);overflow-wrap:anywhere;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.prompt span.t{min-width:0}
+.tr{color:var(--ink-soft);font-size:16px}
+.blank{display:inline-block;min-width:2.6em;border-bottom:3px solid var(--red);margin:0 .1em;height:.8em;vertical-align:baseline}
+.spk{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--hl-lav);color:var(--ink);display:grid;place-items:center}
+.opts{display:grid;gap:10px}
+.opt{width:100%;text-align:left;background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:13px 16px;min-height:56px;font-weight:800;font-size:20px;color:var(--ink);overflow-wrap:anywhere}
+.opt:active:not([disabled]){transform:translateY(1px)}
+.opt.ok{background:var(--good);border-color:var(--good-ink);color:var(--good-ink)}
+.opt.no{background:var(--bad);border-color:var(--bad-ink);color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.keys{display:flex;gap:8px;justify-content:center}
+.key{min-width:48px;height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--hl-lav);font-weight:800;font-size:20px;color:var(--ink)}
+.hint{text-align:center;font:400 28px/1.2 var(--font-display);letter-spacing:.12em;color:var(--red);overflow-wrap:anywhere}
+.slot{min-height:58px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:3px dashed var(--line);padding-bottom:10px}
+.slot .p{font:800 22px var(--font-body);color:var(--red)}
+.bank{display:flex;flex-wrap:wrap;gap:8px;min-height:50px}
+.chip{background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:8px 13px;font-weight:800;font-size:19px;color:var(--ink)}
+.slot .chip{background:var(--hl-yel)}
+.row{display:flex;gap:10px}
+.row>*{flex:1 1 0;min-width:0}
+.fb{border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.fb.ok{background:var(--good);color:var(--good-ink);border-color:var(--good-ink)}
+.fb.no{background:var(--bad);color:var(--bad-ink);border-color:var(--bad-ink)}
+.fb strong{font:400 30px/1 var(--font-display)}
+.fb .btn.ghost{color:inherit;border-color:currentColor}
+.rcard h3{font:400 30px/1.05 var(--font-display);overflow-wrap:anywhere}
+.rstars{display:flex;gap:4px}
+.dots{letter-spacing:.2em;font-weight:800}
+.win{background:var(--hl-yel);border:2px solid var(--ink);border-radius:12px;padding:10px 14px;font:400 30px/1.1 var(--font-display);text-align:center}
+.up{background:var(--hl-lav);border:2px solid var(--ink);border-radius:10px;padding:8px 12px;font-weight:800}
+.rev{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:16px}
+.rev li{overflow-wrap:anywhere}
+@media (max-width:420px){.hour{grid-template-columns:68px 1fr auto}.hour .hr{font-size:21px}}
+@media (prefers-reduced-motion:no-preference){
+  .star.on{animation:pop .45s ease-out both}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+}
+</style>
+<div class="wrap" id="app"></div>
+<script>
+'use strict';
+/* ---------- Utilidades ---------- */
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ART=/^(der|die|das|ein|eine|einen)\s+/i;
+const strip=s=>s.replace(ART,'');
+const norm=s=>s.toLowerCase().replace(/[!?.,;:¡¿]/g,'').replace(/\s+/g,' ').trim();
+const lenient=s=>s.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function checkTyped(input,accepted){
+  const u=strip(norm(input));
+  if(!u) return 0;
+  for(const a of accepted){ if(u===strip(norm(a))) return 1; }
+  for(const a of accepted){ if(lenient(u)===lenient(strip(norm(a)))) return 2; }
+  return 0;
+}
+const baseEs=es=>es.split(' (')[0].toLowerCase().replace(/^(el|la|los|las|un|una)\s+/,'').replace(/[¡!¿?]/g,'');
+
+/* ---------- Datos del cuaderno (corregidos) ---------- */
+const V=a=>a.map(x=>({de:x[0],es:x[1],g:x[2]||null}));
+const SN=a=>a.map(x=>({de:x[0],es:x[1],alt:x[2]||[]}));
+const FL=a=>a.map(x=>({s:x[0],a:x[1],d:x[2],es:x[3]}));
+const mkConj=(inf,es)=>{const st=inf.replace(/en$/,'');return {inf,es,f:[st+'e',st+'st',st+'t',inf,st+'t',inf]};};
+const PR=['ich','du','er/sie/es','wir','ihr','sie (plural)'];
+const PRSAY=['ich','du','er','wir','ihr','sie'];
+
+const DATA={
+ plan:{
+  vocab:V([['Montag','lunes'],['Dienstag','martes'],['Mittwoch','miércoles'],['Donnerstag','jueves'],['Freitag','viernes'],['Samstag','sábado'],['Sonntag','domingo'],['das Wochenende','el fin de semana'],['die Woche','la semana'],['der Stundenplan','el horario'],['die Stunde','la hora de clase'],['das Fach','la asignatura'],['Mathe','matemáticas'],['Deutsch','alemán'],['Englisch','inglés'],['Spanisch','español'],['Französisch','francés'],['Sport','educación física'],['Kunst','plástica'],['Musik','música'],['Religion','religión'],['Physik','física'],['Geschichte','historia'],['Sachkunde','sociales'],['erste','primera'],['zweite','segunda'],['dritte','tercera'],['vierte','cuarta'],['fünfte','quinta'],['sechste','sexta']]),
+  fills:FL([
+   ['Was hast du am ___ in der ersten Stunde?','Montag',['Mathe','Sport','Woche'],'¿Qué tienes el lunes en la primera hora?'],
+   ['Montag, Dienstag, ___, Donnerstag, Freitag','Mittwoch',['Samstag','Sonntag','Woche'],'lunes, martes, miércoles, jueves, viernes'],
+   ['Samstag und ___ sind das Wochenende','Sonntag',['Freitag','Montag','Mittwoch'],'Sábado y domingo son el fin de semana'],
+   ['Die erste, die zweite, die ___ Stunde','dritte',['dritten','vierte','sechste'],'la primera, la segunda, la tercera hora'],
+   ['Mathe ist mein ___','Lieblingsfach',['Stundenplan','Wochenende','Fenster'],'Mates es mi asignatura favorita'],
+   ['Mathe, Musik und Kunst sind ___','Schulfächer',['Schulfach','Stundenplan','Wochenende'],'Mates, música y plástica son asignaturas del cole'],
+   ['Die erste ___ ist Mathe','Stunde',['Woche','Fach','Montag'],'La primera hora es mates']
+  ]),
+  sents:SN([
+   ['Was hast du am Montag in der ersten Stunde?','¿Qué tienes el lunes en la primera hora?'],
+   ['Das ist der Stundenplan','Este es el horario'],
+   ['Mathe ist mein Lieblingsfach','Mates es mi asignatura favorita'],
+   ['Die erste Stunde ist Mathe','La primera hora es mates'],
+   ['Am Montag habe ich Sport','El lunes tengo educación física'],
+   ['Mathe ist am Montag in der dritten Stunde','Mates es el lunes en la tercera hora'],
+   ['Ich habe Freizeit','Tengo tiempo libre']
+  ]),
+  conj:[]
+ },
+ klasse:{
+  vocab:V([['der Lehrer','el profesor'],['die Lehrerin','la profesora'],['der Musiklehrer','el profesor de música'],['die Musiklehrerin','la profesora de música'],['die Klassenlehrerin','la tutora'],['das Buch','el libro'],['das Heft','el cuaderno'],['der Kuli','el bolígrafo'],['das Instrument','el instrumento'],['die Tür','la puerta'],['das Fenster','la ventana'],['der Freund','el amigo'],['die Freundin','la amiga'],['der Junge','el chico'],['das Mädchen','la chica'],['die Jungen','los chicos'],['die Mädchen','las chicas']]),
+  fills:FL([
+   ['Mach das Buch ___','auf',['zu','an','ab'],'Abre el libro'],
+   ['Mach die ___ auf','Tür',['Heft','Kuli','Buch'],'Abre la puerta'],
+   ['Ich brauche ___ Kuli','einen',['ein','eine','einem'],'Necesito un bolígrafo'],
+   ['Ich brauche ___ Heft','ein',['einen','eine','einem'],'Necesito un cuaderno'],
+   ['Ich brauche ___ Instrument','ein',['einen','eine','einem'],'Necesito un instrumento'],
+   ['___ Freundin ist nett','Meine',['Mein','Meinen','Meiner'],'Mi amiga es amable'],
+   ['___ Freund ist nett','Mein',['Meine','Meinen','Meiner'],'Mi amigo es amable'],
+   ['Das ist ein ___','Junge',['Mädchen','Freundin','Fenster'],'Este es un chico'],
+   ['Wie ist die ___?','Musiklehrerin',['Musiklehrer','Freund','Tür'],'¿Cómo es la profesora de música?']
+  ]),
+  sents:SN([
+   ['Mach das Buch auf','Abre el libro'],['Mach die Tür auf','Abre la puerta'],['Mach das Fenster auf','Abre la ventana'],
+   ['Ich brauche ein Heft','Necesito un cuaderno'],['Ich brauche einen Kuli','Necesito un bolígrafo'],
+   ['Was brauchen wir?','¿Qué necesitamos?'],['Wie ist die Musiklehrerin?','¿Cómo es la profesora de música?'],
+   ['Die Musiklehrerin ist nett','La profesora de música es amable'],['Meine Freundin ist sympathisch','Mi amiga es simpática'],
+   ['Der Musiklehrer ist toll und nett','El profesor de música es genial y amable'],
+   ['Wir brauchen ein Buch und ein Heft','Necesitamos un libro y un cuaderno']
+  ]),
+  conj:[]
+ },
+ verben:{
+  vocab:V([['hören','oír'],['schreiben','escribir'],['lernen','aprender'],['lesen','leer'],['malen','pintar'],['zählen','contar (números)'],['sprechen','hablar'],['rechnen','calcular'],['spielen','jugar'],['zeichnen','dibujar'],['sehen','ver'],['fragen','preguntar'],['antworten','contestar'],['machen','hacer'],['basteln','hacer manualidades'],['tanzen','bailar'],['singen','cantar'],['erzählen','contar (una historia)']]),
+  fills:FL([
+   ['In Musik ___ wir','singen',['rechnen','zeichnen','lesen'],'En música cantamos'],
+   ['In Mathe ___ wir','rechnen',['tanzen','singen','malen'],'En mates calculamos'],
+   ['In Kunst ___ wir','zeichnen',['rechnen','lesen','zählen'],'En plástica dibujamos'],
+   ['In Sport ___ wir','spielen',['schreiben','lesen','rechnen'],'En educación física jugamos'],
+   ['Was ___ ihr in Musik?','macht',['mache','machst','machen'],'¿Qué hacéis en música?']
+  ]),
+  sents:SN([
+   ['Wir malen','Pintamos'],['Wir zeichnen','Dibujamos'],['Ich spiele gern Basketball','Me gusta jugar al baloncesto'],
+   ['Sie singt nicht gern','A ella no le gusta cantar'],['Wir lesen und schreiben','Leemos y escribimos'],
+   ['Ich höre und ich sehe','Oigo y veo'],['Wir tanzen und wir singen','Bailamos y cantamos'],
+   ['Was macht ihr in Musik?','¿Qué hacéis en música?'],['In Kunst zeichnen und malen wir','En plástica dibujamos y pintamos'],
+   ['Wir rechnen in Mathe','Calculamos en mates']
+  ]),
+  conj:[mkConj('spielen','jugar'),mkConj('lernen','aprender'),mkConj('malen','pintar'),mkConj('hören','oír'),mkConj('machen','hacer'),mkConj('fragen','preguntar'),mkConj('singen','cantar'),mkConj('schreiben','escribir'),mkConj('zählen','contar')]
+ },
+ mensa:{
+  vocab:V([['die Milch','la leche'],['der Keks','la galleta'],['die Schokolade','el chocolate'],['die Suppe','la sopa'],['das Ei','el huevo'],['die Gurke','el pepino'],['das Püree','el puré'],['das Wasser','el agua'],['das Fleisch','la carne'],['essen','comer'],['trinken','beber'],['hungrig','hambriento'],['durstig','sediento'],['gesund','sano'],['ohne','sin'],['mit','con'],['ein bisschen','un poco'],['der Morgen','la mañana'],['der Mittag','el mediodía'],['der Nachmittag','la tarde']]),
+  fills:FL([
+   ['Ich ___ Wasser','trinke',['esse','trinkst','trinken'],'Bebo agua'],
+   ['Du ___ Suppe','isst',['esse','essen','esst'],'Tú comes sopa'],
+   ['Wir ___ Fleisch','essen',['isst','esst','esse'],'Nosotros comemos carne'],
+   ['Ihr ___ Milch','trinkt',['trinke','trinken','trinkst'],'Vosotros bebéis leche'],
+   ['Bist du ___?','hungrig',['ohne','mit','Keks'],'¿Tienes hambre?'],
+   ['Milch ___ Schokolade','mit',['ohne','Wasser','Ei'],'Leche con chocolate'],
+   ['Ich esse ___ Suppe','ein bisschen',['ohne','mit','hungrig'],'Como un poco de sopa']
+  ]),
+  sents:SN([
+   ['Ich esse Suppe','Como sopa'],['Ich trinke Wasser','Bebo agua'],['Wir essen Fleisch','Comemos carne'],
+   ['Du isst ein Ei','Tú comes un huevo'],['Bist du hungrig?','¿Tienes hambre?'],['Seid ihr hungrig?','¿Tenéis hambre?'],
+   ['Sie ist durstig','Ella tiene sed'],
+   ['Am Morgen trinke ich Milch','Por la mañana bebo leche',['Ich trinke am Morgen Milch']],
+   ['Am Mittag esse ich Püree und Ei','Al mediodía como puré y huevo',['Ich esse am Mittag Püree und Ei']],
+   ['Am Nachmittag esse ich Suppe und Fleisch','Por la tarde como sopa y carne',['Ich esse am Nachmittag Suppe und Fleisch']],
+   ['Ich trinke Milch mit Schokolade','Bebo leche con chocolate'],['Ich esse ein bisschen Suppe','Como un poco de sopa']
+  ]),
+  conj:[{inf:'essen',es:'comer',f:['esse','isst','isst','essen','esst','essen']},mkConj('trinken','beber')]
+ },
+ meinung:{
+  vocab:V([['genial','genial','g1'],['toll','genial','g1'],['super','genial','g1'],['einfach','fácil'],['logisch','lógico'],['interessant','interesante'],['wichtig','importante'],['langweilig','aburrido'],['doof','tonto'],['schwer','difícil'],['nett','amable'],['sympathisch','simpático'],['überhaupt nicht','en absoluto'],['die Freizeit','el tiempo libre'],['frei','libre'],['das Lieblingsfach','la asignatura favorita']]),
+  fills:FL([
+   ['Mathe ist ___','logisch',['doof','langweilig','nett'],'Mates es lógico'],
+   ['Physik ist ___','schwer',['einfach','nett','frei'],'Física es difícil'],
+   ['Englisch ist ___','einfach',['schwer','doof','frei'],'Inglés es fácil'],
+   ['Kunst ist ___','toll',['langweilig','doof','schwer'],'Plástica es genial'],
+   ['Mein ___ ist Mathe','Lieblingsfach',['Stundenplan','Freund','Fenster'],'Mi asignatura favorita es mates'],
+   ['Was ist ___ Lieblingsfach?','euer',['mein','meine','meiner'],'¿Cuál es vuestra asignatura favorita?'],
+   ['Das ist ___ nicht langweilig','überhaupt',['ohne','mit','einfach'],'Eso no es nada aburrido'],
+   ['Ich habe ___','Freizeit',['Fenster','Fleisch','Fach'],'Tengo tiempo libre']
+  ]),
+  sents:SN([
+   ['Mathe ist logisch','Mates es lógico'],['Englisch ist einfach','Inglés es fácil'],['Physik ist schwer','Física es difícil'],
+   ['Geschichte ist interessant','Historia es interesante'],['Kunst ist toll','Plástica es genial'],['Sport ist genial','Educación física es genial'],
+   ['Musik ist wichtig','La música es importante'],['Das ist überhaupt nicht langweilig','Eso no es nada aburrido'],
+   ['Mein Lieblingsfach ist Kunst','Mi asignatura favorita es plástica'],['Was ist euer Lieblingsfach?','¿Cuál es vuestra asignatura favorita?'],
+   ['Mathe ist nicht doof','Mates no es tonto'],['Englisch ist nicht langweilig','Inglés no es aburrido']
+  ]),
+  conj:[]
+ },
+ zeit:{
+  vocab:V([['die Jahreszeiten','las estaciones'],['der Frühling','la primavera'],['der Sommer','el verano'],['der Herbst','el otoño'],['der Winter','el invierno'],['die Gesundheit','la salud'],['Viel Spaß!','¡Que te diviertas!'],['Bis später!','¡Hasta luego!'],['Bis bald!','¡Hasta pronto!'],['Bis morgen!','¡Hasta mañana!'],['Bis Montag!','¡Hasta el lunes!'],['jetzt','ahora'],['so lala','más o menos'],['nächste Woche','la semana que viene'],['nächstes Jahr','el año que viene']]),
+  fills:FL([
+   ['___ später','Bis',['Viel','Mit','Ohne'],'Hasta luego'],
+   ['Viel ___','Spaß',['Bis','Fach','Woche'],'Que te diviertas'],
+   ['Bis ___ Woche','nächste',['nächsten','nächstes','nächster'],'Hasta la semana que viene'],
+   ['Bis ___ Jahr','nächstes',['nächste','nächsten','nächster'],'Hasta el año que viene'],
+   ['Bis ___ Sommer','nächsten',['nächste','nächstes','nächster'],'Hasta el próximo verano'],
+   ['Frühling, ___, Herbst, Winter','Sommer',['Montag','Mittag','Morgen'],'primavera, verano, otoño, invierno'],
+   ['Ich bin so ___','lala',['toll','nett','schwer'],'Estoy así así, más o menos']
+  ]),
+  sents:SN([
+   ['Viel Spaß','Que te diviertas'],['Bis später','Hasta luego'],['Bis morgen','Hasta mañana'],['Bis bald','Hasta pronto'],['Bis Montag','Hasta el lunes'],
+   ['Bis nächste Woche','Hasta la semana que viene'],['Bis nächstes Jahr','Hasta el año que viene'],['Bis nächsten Sommer','Hasta el próximo verano'],
+   ['Jetzt ist Winter','Ahora es invierno'],['Der Sommer ist toll','El verano es genial'],['Ich bin so lala','Estoy más o menos'],
+   ['Der Frühling ist genial und der Sommer ist toll','La primavera es genial y el verano es estupendo']
+  ]),
+  conj:[]
+ },
+ julia:{
+  vocab:V([['sportlich','deportista'],['wohnen','vivir'],['gern','con gusto'],['das Jahr','el año'],['Spanien','España']]),
+  fills:FL([
+   ['Sie wohnt in ___, Zaragoza','Spanien',['Spanisch','Sport','Montag'],'Ella vive en España, en Zaragoza'],
+   ['Sie ist 11 ___ alt','Jahre',['Jahr','Stunde','Woche'],'Tiene 11 años'],
+   ['Sie ist ___','sportlich',['langweilig','hungrig','doof'],'Ella es deportista'],
+   ['Sie spielt ___ Basketball','gern',['ohne','mit','frei'],'Le gusta jugar al baloncesto'],
+   ['Sie singt nicht ___','gern',['gesund','wichtig','frei'],'No le gusta cantar'],
+   ['Julia ___ in Spanien','wohnt',['wohne','wohnst','wohnen'],'Julia vive en España']
+  ]),
+  sents:SN([
+   ['Das ist Julia','Esta es Julia'],['Sie ist sportlich','Ella es deportista'],['Sie spielt gern Basketball','A ella le gusta jugar al baloncesto'],
+   ['Sie singt nicht gern','A ella no le gusta cantar'],['Sie wohnt in Spanien, Zaragoza','Ella vive en España, en Zaragoza'],
+   ['Sie ist 11 Jahre alt','Tiene 11 años'],['Sie spielt gern Basketball und sie singt nicht gern','Le gusta jugar al baloncesto y no le gusta cantar']
+  ]),
+  conj:[mkConj('wohnen','vivir')]
+ }
+};
+
+const ROOMS=[
+ {id:'plan',hour:'1. Stunde',title:'Stundenplan',es:'Horario: días, asignaturas, ordinales'},
+ {id:'klasse',hour:'2. Stunde',title:'Klassenzimmer',es:'La clase, profes y amigos'},
+ {id:'verben',hour:'3. Stunde',title:'Verben',es:'Verbos de clase'},
+ {id:'mensa',hour:'Pause',title:'Mensa',es:'Comer y beber',pause:true},
+ {id:'meinung',hour:'4. Stunde',title:'Meinung',es:'Opiniones y adjetivos'},
+ {id:'zeit',hour:'5. Stunde',title:'Jahreszeiten',es:'Estaciones y despedidas'},
+ {id:'julia',hour:'6. Stunde',title:'Julia',es:'Jefe final: todo mezclado',boss:true}
+];
+
+/* ---------- Generador de preguntas ---------- */
+const NOPT=[3,4,4], MAXW=[4,7,99];
+const PLAN=[
+ ['de2es','de2es','es2de','es2de','fill','fill','order','de2es'],
+ ['es2de','conj','de2es','fill','fill','typeHint','typeHint','order'],
+ ['type','type','type','conjType','fillType','fillType','order','order']
+];
+const FALL={conj:['es2de'],conjType:['type'],fillType:['type'],fill:['es2de'],order:['es2de'],typeHint:['es2de'],type:['es2de'],es2de:['de2es'],de2es:['es2de']};
+
+function take(Dd,key){
+  Dd._q=Dd._q||{};
+  if(!Dd._q[key]||!Dd._q[key].length) Dd._q[key]=shuffle(Dd[key]);
+  return Dd._q[key].pop();
+}
+function nextOf(Dd,key,used,pre,kf,filt){
+  if(!Dd[key]||!Dd[key].length) return null;
+  const n=Dd[key].length*2+2;
+  for(let t=0;t<n;t++){
+    const it=take(Dd,key); if(!it) return null;
+    if(filt&&!filt(it)) continue;
+    const k=pre+kf(it);
+    if(!used.has(k)){ used.add(k); return it; }
+  }
+  return null;
+}
+function distract(v,pool,n,key){
+  const out=[];
+  for(const w of shuffle(pool)){
+    if(w===v) continue;
+    if(v.g&&w.g===v.g) continue;
+    const x=baseEs(v.es),y=baseEs(w.es);
+    if(x.includes(y)||y.includes(x)) continue;
+    const val=w[key];
+    if(val===v[key]||out.includes(val)) continue;
+    out.push(val); if(out.length>=n) break;
+  }
+  return out;
+}
+function accepted(v,pool){ return [v.de].concat(v.g?pool.filter(w=>w.g===v.g).map(w=>w.de):[]); }
+function mkHint(de){
+  const s=strip(de).replace(/[!?.]/g,'');
+  return s.split('').map((c,i)=>c===' '?' ':(i===0?c:'_')).join(' ');
+}
+function makeQ(kind,Dd,lv,used){
+  const n=NOPT[lv];
+  if(kind==='de2es'||kind==='es2de'||kind==='type'||kind==='typeHint'){
+    const v=nextOf(Dd,'vocab',used,'v:',x=>x.de); if(!v) return null;
+    const expl=v.de+' = '+v.es;
+    if(kind==='de2es') return {kind:'mc',dir:'de2es',sub:'¿Qué significa en español?',prompt:v.de,opts:shuffle([v.es].concat(distract(v,Dd.vocab,n-1,'es'))),ans:v.es,say:v.de,explain:expl};
+    if(kind==='es2de') return {kind:'mc',dir:'es2de',sub:'¿Cómo se dice en alemán?',prompt:v.es,opts:shuffle([v.de].concat(distract(v,Dd.vocab,n-1,'de'))),ans:v.de,say:v.de,explain:expl};
+    return {kind:'type',dir:'es2de',sub:'Escríbelo en alemán',prompt:v.es,acc:accepted(v,Dd.vocab),show:v.de,hint:kind==='typeHint'?mkHint(v.de):'',say:v.de,explain:expl};
+  }
+  if(kind==='fill'||kind==='fillType'){
+    const f=nextOf(Dd,'fills',used,'f:',x=>x.s); if(!f) return null;
+    const full=f.s.replace('___',f.a);
+    const base={dir:'fill',sub:'Completa la frase',prompt:f.s,tr:f.es,say:full,explain:full+' — '+f.es};
+    if(kind==='fill') return Object.assign(base,{kind:'mc',opts:shuffle([f.a].concat(f.d.slice(0,n-1))),ans:f.a});
+    return Object.assign(base,{kind:'type',acc:[f.a],show:f.a,hint:''});
+  }
+  if(kind==='order'){
+    const ok=s=>{const c=s.de.split(' ').length;return lv===0?c<=4:lv===1?(c<=7&&c>=3):c>=5;};
+    let s=nextOf(Dd,'sents',used,'s:',x=>x.de,ok);
+    if(!s) s=nextOf(Dd,'sents',used,'s:',x=>x.de,x=>x.de.split(' ').length<=MAXW[lv]);
+    if(!s) return null;
+    const punct=(s.de.match(/[?!.]$/)||[''])[0];
+    const words=s.de.replace(/[?!.]$/,'').split(' ').map(w=>w.replace(/,/g,''));
+    let sh,k=0; do{sh=shuffle(words);k++;}while(k<12&&sh.join(' ')===words.join(' '));
+    return {kind:'order',dir:'order',sub:'Ordena las palabras en alemán',prompt:s.es,words:sh,punct,acc:[s.de].concat(s.alt),show:s.de,say:s.de,explain:s.de+' — '+s.es};
+  }
+  if(kind==='conj'||kind==='conjType'){
+    const c=nextOf(Dd,'conj',used,'c:',x=>x.inf); if(!c) return null;
+    const i=Math.floor(Math.random()*6);
+    const form=c.f[i];
+    const base={dir:'conj',sub:'Conjuga el verbo',prompt:PR[i]+' ___ ('+c.inf+')',tr:c.inf+' = '+c.es,say:PRSAY[i]+' '+form,explain:PR[i]+' '+form+' ('+c.inf+' = '+c.es+')'};
+    if(kind==='conj'){
+      const forms=Array.from(new Set(c.f)).filter(x=>x!==form);
+      return Object.assign(base,{kind:'mc',opts:shuffle([form].concat(shuffle(forms).slice(0,3))),ans:form});
+    }
+    return Object.assign(base,{kind:'type',acc:[form],show:form,hint:''});
+  }
+  return null;
+}
+function tryKind(kind,Dd,lv,used){
+  let q=makeQ(kind,Dd,lv,used);
+  if(q) return q;
+  for(const k of (FALL[kind]||[])){ q=makeQ(k,Dd,lv,used); if(q) return q; }
+  return makeQ('de2es',Dd,lv,used)||makeQ('es2de',Dd,lv,used);
+}
+function mergedData(){
+  const m={vocab:[],fills:[],sents:[],conj:[]};
+  const seen=new Set();
+  Object.keys(DATA).forEach(id=>{
+    const d=DATA[id];
+    d.vocab.forEach(v=>{ if(!seen.has(v.de)){seen.add(v.de);m.vocab.push(v);} });
+    m.fills=m.fills.concat(d.fills); m.sents=m.sents.concat(d.sents); m.conj=m.conj.concat(d.conj);
+  });
+  return m;
+}
+function genQuestions(room,lv,n){
+  const used=new Set();
+  const out=[];
+  let plan=shuffle(PLAN[lv]);
+  const Dd=room.boss?mergedData():DATA[room.id];
+  if(room.boss){
+    const J=DATA.julia;
+    const jp=lv===0?['fill','order','fill']:lv===1?['fill','fill','order']:['fillType','fillType','order'];
+    jp.forEach(k=>{ const q=tryKind(k,{vocab:Dd.vocab,fills:J.fills,sents:J.sents,conj:[]},lv,used); if(q) out.push(q); });
+    plan=plan.slice(0,n-out.length);
+  }
+  plan.forEach(k=>{ const q=tryKind(k,Dd,lv,used); if(q) out.push(q); });
+  return shuffle(out).slice(0,n);
+}
+
+/* ---------- Estado ---------- */
+const LEVELS=[
+ {name:'Alumno nuevo',desc:'Eliges entre 3 respuestas y ordenas frases cortas.'},
+ {name:'Segundo año',desc:'4 respuestas, pistas con la primera letra y frases más largas.'},
+ {name:'Pro',desc:'Escribes tú las palabras, sin pistas, y conjugas verbos.'}
+];
+const KEY='schultag.v1';
+const defP=i=>({name:'Jugador '+(i+1),level:0,prog:0,stars:{}});
+let S={screen:'home',mode:1,voice:true,players:[defP(0),defP(1)]};
+let G=null;
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY); if(!raw) return;
+    const d=JSON.parse(raw);
+    if(d.mode===1||d.mode===2) S.mode=d.mode;
+    if(typeof d.voice==='boolean') S.voice=d.voice;
+    if(Array.isArray(d.players)) d.players.slice(0,2).forEach((p,i)=>{
+      if(!p) return;
+      S.players[i]={name:String(p.name||defP(i).name).slice(0,16),level:[0,1,2].includes(p.level)?p.level:0,prog:p.prog===1?1:0,stars:(p.stars&&typeof p.stars==='object')?p.stars:{}};
+    });
+  }catch(e){}
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({mode:S.mode,voice:S.voice,players:S.players})); }catch(e){} }
+const hasVoice=()=>typeof window!=='undefined'&&'speechSynthesis' in window;
+function speak(t){
+  if(!S.voice||!hasVoice()||!t) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t); u.lang='de-DE'; u.rate=.85;
+    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().indexOf('de')===0);
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- Vistas ---------- */
+const star=(on,sz)=>'<svg class="star'+(on?' on':'')+'" width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6 6.2 20.7l1.1-6.5L2.6 9.6l6.5-.9z"/></svg>';
+const stars=(n,sz)=>[0,1,2].map(i=>star(i<n,sz)).join('');
+const tag=l=>'<span class="tag l'+l+'">'+LEVELS[l].name+'</span>';
+const spkIcon='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const act_P=()=>S.players.slice(0,S.mode);
+
+function viewHome(){
+  const P=act_P();
+  const cards=P.map((p,i)=>
+   '<section class="panel">'+
+   '<label class="lab" for="pn'+i+'">Jugador '+(i+1)+'</label>'+
+   '<input id="pn'+i+'" class="inp" data-act="name" data-i="'+i+'" maxlength="16" autocomplete="off" value="'+esc(p.name)+'">'+
+   '<div class="lab">Nivel</div>'+
+   '<div class="lv" role="group" aria-label="Nivel de '+esc(p.name)+'">'+
+   LEVELS.map((l,k)=>'<button class="l'+k+'" data-act="level" data-i="'+i+'" data-v="'+k+'" aria-pressed="'+(p.level===k)+'">'+l.name+'</button>').join('')+
+   '</div><p class="note">'+LEVELS[p.level].desc+'</p></section>').join('');
+  return '<header><h1><span class="hl">Der Schultag</span></h1><p class="lead" style="margin-top:10px">Un día entero en el colegio alemán, de la primera a la sexta hora. Practica el vocabulario del cuaderno de alemán.</p></header>'+
+   '<section class="panel"><div class="lab">¿Cuántos jugáis?</div><div class="seg" role="group">'+
+   '<button data-act="mode" data-v="1" aria-pressed="'+(S.mode===1)+'">1 jugador</button>'+
+   '<button data-act="mode" data-v="2" aria-pressed="'+(S.mode===2)+'">2 jugadores</button></div>'+
+   (S.mode===2?'<p class="note">Jugáis por turnos en el mismo dispositivo. Cada uno recibe preguntas de su nivel.</p>':'')+'</section>'+
+   cards+
+   '<section class="panel"><p class="note">Acierta 7 de 8 preguntas en dos horas de clase y subes de nivel automáticamente. También puedes cambiarlo a mano aquí.</p>'+
+   (hasVoice()?'<label class="chk"><input type="checkbox" id="vc" data-act="voice"'+(S.voice?' checked':'')+'> Voz alemana para oír las palabras</label>':'')+
+   '</section>'+
+   '<button class="btn" data-act="toMap">Ir al colegio</button>';
+}
+function doneCount(){ return ROOMS.filter(r=>!r.boss&&act_P().some(p=>p.stars[r.id]!==undefined)).length; }
+function viewMap(){
+  const P=act_P(), dc=doneCount();
+  const strip=P.map(p=>'<div class="pchip"><b>'+esc(p.name)+'</b>'+tag(p.level)+'</div>').join('');
+  const rows=ROOMS.map(r=>{
+    const locked=r.boss&&dc<4;
+    const st=P.map(p=>'<span class="ps">'+(P.length>1?'<i>'+esc((p.name[0]||'?').toUpperCase())+'</i>':'')+stars(p.stars[r.id]||0,18)+'</span>').join('');
+    return '<button class="hour'+(r.pause?' pause':'')+(r.boss?' boss':'')+'" data-act="room" data-id="'+r.id+'"'+(locked?' disabled':'')+'>'+
+      '<span class="hr">'+r.hour+'</span><span class="rt"><b>'+r.title+'</b><small>'+(locked?'Se abre al terminar 4 horas ('+dc+'/4)':r.es)+'</small></span><span class="sts">'+st+'</span></button>';
+  }).join('');
+  return '<div class="bar"><h2><span class="hl peach">Stundenplan</span></h2><button class="btn ghost sm" data-act="home">Jugadores</button></div>'+
+   '<p class="lead">Elige una hora de clase. Cada una tiene 8 preguntas por jugador.</p>'+
+   '<div class="strip">'+strip+'</div><div class="rooms">'+rows+'</div>';
+}
+const Q=()=>G.qs[G.i%G.n][Math.floor(G.i/G.n)];
+const who=()=>G.i%G.n;
+function blankify(s){ return esc(s).replace('___','<span class="blank"></span>'); }
+function viewPlay(){
+  const P=act_P(), q=Q(), cur=who();
+  const strip=P.map((p,i)=>'<div class="pchip'+(i===cur?' on':'')+'"><b>'+esc(p.name)+'</b>'+tag(p.level)+'<span class="pts">'+G.res[i].pts+' pts'+(G.res[i].combo>=3?' · racha '+G.res[i].combo:'')+'</span></div>').join('');
+  let body='';
+  if(q.kind==='mc'){
+    body='<div class="opts">'+q.opts.map((o,k)=>{
+      let cls='',dis='';
+      if(G.ans){ dis=' disabled'; if(o===q.ans) cls=' ok'; else if(k===G.ans.pick) cls=' no'; }
+      return '<button class="opt'+cls+'" data-act="opt" data-k="'+k+'"'+dis+'>'+esc(o)+'</button>';
+    }).join('')+'</div>';
+  } else if(q.kind==='type'){
+    body='<form data-act="submitType" autocomplete="off">'+(q.hint?'<p class="hint" aria-label="Pista">'+esc(q.hint)+'</p>':'')+
+     '<div class="panel" style="border:0;box-shadow:none;padding:0;background:none"><input id="ti" class="inp big" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe aquí"'+(G.ans?' disabled value="'+esc(G.ans.given)+'"':'')+'>'+
+     (G.ans?'':'<div class="keys">'+['ä','ö','ü','ß'].map(c=>'<button type="button" class="key" data-act="ins" data-c="'+c+'" aria-label="Insertar '+c+'">'+c+'</button>').join('')+'</div><button class="btn" type="submit">Comprobar</button>')+'</div></form>';
+  } else if(q.kind==='order'){
+    const o=G.order;
+    body='<div class="slot" aria-label="Tu frase">'+o.placed.map(id=>'<button class="chip" data-act="unplace" data-id="'+id+'"'+(G.ans?' disabled':'')+'>'+esc(q.words[id])+'</button>').join('')+(o.placed.length?'<span class="p">'+esc(q.punct)+'</span>':'')+'</div>'+
+     '<div class="bank">'+q.words.map((w,id)=>o.placed.includes(id)?'':'<button class="chip" data-act="place" data-id="'+id+'">'+esc(w)+'</button>').join('')+'</div>'+
+     (G.ans?'':'<div class="row"><button class="btn ghost" data-act="clear"'+(o.placed.length?'':' disabled')+'>Borrar</button><button class="btn" data-act="checkOrder"'+(o.placed.length===q.words.length?'':' disabled')+'>Comprobar</button></div>');
+  }
+  const spk=(q.dir==='de2es'&&hasVoice()&&S.voice)?'<button class="spk" data-act="speak" aria-label="Escuchar la palabra">'+spkIcon+'</button>':'';
+  const card='<article class="panel"><div class="lab">'+esc(q.sub)+'</div>'+
+    '<div class="prompt"><span class="t">'+(q.dir==='fill'||q.dir==='conj'?blankify(q.prompt):esc(q.prompt))+'</span>'+spk+'</div>'+
+    (q.tr?'<p class="tr">'+esc(q.tr)+'</p>':'')+body+'</article>';
+  let fb='';
+  if(G.ans){
+    const last=G.i===G.total-1;
+    const nextName=!last&&G.n>1?P[(G.i+1)%G.n].name:'';
+    const label=last?'Ver resultados':(G.n>1?'Siguiente: turno de '+esc(nextName):'Siguiente');
+    fb='<div class="fb '+(G.ans.ok?'ok':'no')+'" role="status"><strong>'+(G.ans.ok?'Richtig!':'Nicht ganz')+'</strong>'+
+      (G.ans.note?'<p>'+esc(G.ans.note)+'</p>':'')+
+      '<p>'+esc(q.explain)+'</p>'+
+      '<div class="row">'+(hasVoice()&&S.voice?'<button class="btn ghost sm" data-act="speakAns">Escuchar</button>':'')+'<button class="btn" id="nx" data-act="next">'+label+'</button></div></div>';
+  }
+  const r=ROOMS.find(x=>x.id===G.room.id);
+  return '<div class="bar"><button class="btn ghost sm" data-act="quit">'+(G.quitArm?'¿Salir? Toca otra vez':'Salir')+'</button><span class="lab">'+r.hour+' · '+r.title+' · '+(G.i+1)+'/'+G.total+'</span></div>'+
+    '<div class="strip">'+strip+'</div>'+card+fb;
+}
+function viewResult(){
+  const P=act_P(), out=G.out;
+  let win='';
+  if(P.length>1){
+    const a=G.res[0].pts,b=G.res[1].pts;
+    win='<div class="win">'+(a===b?'¡Empate!':'¡Gana '+esc(P[a>b?0:1].name)+'!')+'</div>';
+  }
+  const cards=out.map((o,i)=>{
+    const p=P[i], r=G.res[i];
+    const prog=p.level<2?'<p class="note">Para subir de nivel: <span class="dots">'+(p.prog>=1?'●○':'○○')+'</span> (7 de 8 en dos horas)</p>':'<p class="note">Nivel máximo. ¡Eres Pro!</p>';
+    return '<section class="panel rcard"><h3>'+esc(p.name)+'</h3><div>'+tag(p.level)+'</div>'+
+      '<div class="rstars" aria-label="'+o.stars+' de 3 estrellas">'+stars(o.stars,36)+'</div>'+
+      '<p><b>'+r.c+' de '+G.per+'</b> aciertos · '+r.pts+' puntos</p>'+
+      (o.up?'<div class="up">¡Subes a '+LEVELS[p.level].name+'!</div>':prog)+
+      (r.wrong.length?'<div class="lab">Para repasar</div><ul class="rev">'+r.wrong.slice(0,6).map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>':'<p class="note">Sin fallos. Impecable.</p>')+'</section>';
+  }).join('');
+  return '<h2><span class="hl">'+G.room.hour+': '+G.room.title+'</span></h2>'+win+cards+
+    '<div class="row"><button class="btn ghost" data-act="again">Repetir</button><button class="btn" data-act="toMap">Volver al horario</button></div>';
+}
+
+/* ---------- Lógica de juego ---------- */
+function startRoom(id){
+  const room=ROOMS.find(r=>r.id===id), n=S.mode, per=8;
+  const qs=[]; for(let p=0;p<n;p++) qs.push(genQuestions(room,S.players[p].level,per));
+  G={room,n,per,total:per*n,i:0,qs,res:S.players.slice(0,n).map(()=>({c:0,pts:0,combo:0,wrong:[]})),ans:null,order:null,quitArm:false,out:null};
+  setupQ(); S.screen='play'; render();
+}
+function setupQ(){
+  G.ans=null; G.order=null; G.quitArm=false;
+  const q=Q();
+  if(q.kind==='order') G.order={placed:[]};
+}
+function record(ok,given,pick,note){
+  const r=G.res[who()], q=Q();
+  if(ok){ r.c++; r.combo++; r.pts+=10+(r.combo>=3?5:0); }
+  else { r.combo=0; r.wrong.push(q.explain); }
+  G.ans={ok,given,pick,note:note||''};
+  speak(q.say);
+  render();
+}
+function finishRoom(){
+  const out=G.res.map((r,pi)=>{
+    const p=S.players[pi];
+    const st=r.c>=8?3:r.c>=6?2:r.c>=4?1:0;
+    const old=p.stars[G.room.id];
+    if(old===undefined||st>old) p.stars[G.room.id]=st;
+    let up=false;
+    if(r.c>=7&&p.level<2){ p.prog++; if(p.prog>=2){ p.level++; p.prog=0; up=true; } }
+    return {stars:st,up};
+  });
+  G.out=out; save(); S.screen='result'; render();
+}
+function act(a,t){
+  switch(a){
+    case 'mode': S.mode=+t.dataset.v; save(); render(); break;
+    case 'level': S.players[+t.dataset.i].level=+t.dataset.v; S.players[+t.dataset.i].prog=0; save(); render(); break;
+    case 'home': S.screen='home'; render(); break;
+    case 'toMap': S.screen='map'; save(); render(); break;
+    case 'room': startRoom(t.dataset.id); break;
+    case 'again': startRoom(G.room.id); break;
+    case 'quit': if(G.quitArm){ G=null; S.screen='map'; } else { G.quitArm=true; } render(); break;
+    case 'opt': { if(G.ans) break; const q=Q(), k=+t.dataset.k; record(q.opts[k]===q.ans,q.opts[k],k); break; }
+    case 'ins': { const inp=document.getElementById('ti'); if(!inp) break; const s=inp.selectionStart==null?inp.value.length:inp.selectionStart; inp.value=inp.value.slice(0,s)+t.dataset.c+inp.value.slice(s); inp.focus(); inp.setSelectionRange(s+1,s+1); break; }
+    case 'submitType': { if(G.ans) break; const inp=document.getElementById('ti'); const v=inp.value; if(!v.trim()){ inp.focus(); break; } const q=Q(), r=checkTyped(v,q.acc);
+      record(r>0,v,-1,r===2?'Casi perfecto. Se escribe con la letra especial: '+q.show:(r===0?'Escribiste: '+v.trim():'')); break; }
+    case 'place': if(!G.ans){ G.order.placed.push(+t.dataset.id); render(); } break;
+    case 'unplace': if(!G.ans){ G.order.placed=G.order.placed.filter(x=>x!==+t.dataset.id); render(); } break;
+    case 'clear': G.order.placed=[]; render(); break;
+    case 'checkOrder': { if(G.ans) break; const q=Q(); const s=G.order.placed.map(id=>q.words[id]).join(' ');
+      const ok=q.acc.some(a=>norm(a)===norm(s)); record(ok,s,-1,ok?'':'Tu frase: '+s+q.punct); break; }
+    case 'speak': speak(Q().say); break;
+    case 'speakAns': speak(Q().say); break;
+    case 'next': if(G.i>=G.total-1) finishRoom(); else { G.i++; setupQ(); render(); } break;
+  }
+}
+
+/* ---------- Render y eventos ---------- */
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML=S.screen==='home'?viewHome():S.screen==='map'?viewMap():S.screen==='play'?viewPlay():viewResult();
+  if(S.screen==='play'&&G){
+    if(G.ans){ const nx=document.getElementById('nx'); if(nx) nx.focus({preventScroll:false}); }
+    else if(Q().kind==='type'){ const ti=document.getElementById('ti'); if(ti) ti.focus({preventScroll:true}); }
+  } else window.scrollTo(0,0);
+}
+function init(){
+  load();
+  const app=document.getElementById('app');
+  app.addEventListener('click',e=>{ const t=e.target.closest('[data-act]'); if(!t||t.disabled||t.tagName==='FORM'||t.tagName==='INPUT') return; act(t.dataset.act,t); });
+  app.addEventListener('submit',e=>{ e.preventDefault(); const f=e.target.closest('[data-act]'); if(f) act(f.dataset.act,f); });
+  app.addEventListener('input',e=>{ const t=e.target; if(t.dataset&&t.dataset.act==='name'){ S.players[+t.dataset.i].name=t.value.slice(0,16)||defP(+t.dataset.i).name; save(); } });
+  app.addEventListener('change',e=>{ const t=e.target; if(t.dataset&&t.dataset.act==='voice'){ S.voice=t.checked; save(); } });
+  render();
+}
+if(typeof document!=='undefined') init();
+</script>
+
+</body></html>
